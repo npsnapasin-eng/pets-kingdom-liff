@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet's Kingdom 2 - นัดหมายบริการ</title>
+  <!-- Tailwind CSS & Lucide Icons CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            wood: '#8B4513',
+            caramel: '#C27D48',
+            cream: '#FDFBF7',
+            creamCard: '#FFFFFF',
+            gold: '#D4AF37'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .vintage-border { border: 2px dashed #C27D48; }
+  </style>
+</head>
+<body class="text-stone-800 pb-20">
+
+  <!-- Header Banner -->
+  <header class="bg-wood text-white px-4 py-6 shadow-md relative border-b-4 border-caramel">
+    <div class="max-w-md mx-auto text-center">
+      <span class="inline-block px-3 py-1 bg-caramel text-cream text-xs font-semibold rounded-full uppercase tracking-wider mb-2">
+        Since 2018 • สาขาตลาดลุงออม
+      </span>
+      <h1 class="text-2xl font-bold tracking-tight">Pet's Kingdom 2</h1>
+      <p class="text-amber-100 text-xs mt-1">อาบน้ำ-ตัดขน (ฟรีโอโซนทุกรายการ) & โรงแรมสัตว์เลี้ยง</p>
+      <div class="mt-3 flex items-center justify-center gap-4 text-xs text-amber-200">
+        <span>🕒 09:00 - 19:00 น.</span>
+        <span>📞 064-984-4034</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-md mx-auto p-4 space-y-6">
+
+    <!-- Category Tabs -->
+    <div class="grid grid-cols-2 gap-2 bg-stone-200 p-1 rounded-xl">
+      <button id="tab-grooming" onclick="switchCategory('grooming')" class="py-2.5 text-sm font-semibold rounded-lg bg-white text-wood shadow transition-all">
+        ✂️ อาบน้ำ - ตัดขน
+      </button>
+      <button id="tab-hotel" onclick="switchCategory('hotel')" class="py-2.5 text-sm font-semibold rounded-lg text-stone-600 transition-all">
+        🏨 โรงแรม & รับฝาก
+      </button>
+    </div>
+
+    <!-- Booking Form Card -->
+    <form id="booking-form" onsubmit="handleBooking(event)" class="bg-white p-5 rounded-2xl shadow-sm border border-stone-200 space-y-5">
+      
+      <!-- Section 1: Customer Profile -->
+      <div class="space-y-3">
+        <h2 class="text-sm font-bold text-wood flex items-center gap-1.5 border-b border-stone-100 pb-2">
+          <span>👤</span> ข้อมูลเจ้าของและสัตว์เลี้ยง
+        </h2>
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">ชื่อเจ้าของ *</label>
+          <input type="text" id="owner-name" required placeholder="เช่น คุณสมชาย" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-stone-600 mb-1">เบอร์ติดต่อ *</label>
+            <input type="tel" id="owner-phone" required placeholder="08X-XXX-XXXX" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-stone-600 mb-1">ชื่อน้อง *</label>
+            <input type="text" id="pet-name" required placeholder="เช่น น้องนำโชค" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Service Selection (Grooming) -->
+      <div id="section-grooming" class="space-y-3">
+        <h2 class="text-sm font-bold text-wood flex items-center gap-1.5 border-b border-stone-100 pb-2">
+          <span>✂️</span> เลือกบริการอาบน้ำ - ตัดขน
+        </h2>
+        <div class="p-2.5 bg-amber-50 rounded-lg text-xs text-caramel font-medium flex items-center gap-2">
+          <span>✨</span> ไฮไลต์: บริการอาบน้ำและตัดขน ทุกรายการฟรีอาบโอโซน!
+        </div>
+        
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">ประเภทสัตว์เลี้ยง *</label>
+          <select id="pet-species" onchange="updateServiceOptions()" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+            <option value="cat">น้องแมว</option>
+            <option value="dog">น้องหมา</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">ขนาดและสายพันธุ์ *</label>
+          <select id="grooming-package" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-2">บริการเสริม (Add-ons)</label>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 text-stone-700">
+              <input type="checkbox" name="addon" value="สางขนพันกัน (เริ่ม 100฿)" class="rounded text-caramel focus:ring-caramel">
+              สางสังกะตัง / ขนพันกัน (เริ่มต้น 100฿)
+            </label>
+            <label class="flex items-center gap-2 text-stone-700">
+              <input type="checkbox" name="addon" value="แชมพูยา (เริ่ม 100฿)" class="rounded text-caramel focus:ring-caramel">
+              อาบน้ำแชมพูยารักษาผิวหนัง (เริ่มต้น 100฿)
+            </label>
+            <label class="flex items-center gap-2 text-stone-700">
+              <input type="checkbox" name="addon" value="ยกเท้า (50฿)" class="rounded text-caramel focus:ring-caramel">
+              ตัดแต่งขนใต้อุ้งเท้า / ยกเท้า (50฿)
+            </label>
+            <label class="flex items-center gap-2 text-stone-700">
+              <input type="checkbox" name="addon" value="ตัดเล็บ (50฿)" class="rounded text-caramel focus:ring-caramel">
+              ตัดเล็บอย่างเดียว (50฿)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Service Selection (Hotel) -->
+      <div id="section-hotel" class="space-y-3 hidden">
+        <h2 class="text-sm font-bold text-wood flex items-center gap-1.5 border-b border-stone-100 pb-2">
+          <span>🏨</span> เลือกประเภทห้องพัก
+        </h2>
+        <div class="p-2.5 bg-stone-50 rounded-lg text-xs text-stone-600 space-y-1">
+          <p>• พักได้ไม่เกิน 3 ตัว/ห้อง (เตรียมอาหารมาเอง)</p>
+          <p>• รับ-ส่งเวลา 09:00 - 19:00 น. (นอกเวลาเพิ่ม 100฿)</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">ประเภทการฝาก *</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center p-2.5 border rounded-lg cursor-pointer bg-cream border-caramel">
+              <input type="radio" name="stay-type" value="overnight" checked class="text-caramel mr-2"> ค้างคืน (Overnight)
+            </label>
+            <label class="flex items-center p-2.5 border rounded-lg cursor-pointer border-stone-200">
+              <input type="radio" name="stay-type" value="daycare" class="text-caramel mr-2"> ฝากระหว่างวัน (Daycare)
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">เลือกขนาดห้องพัก *</label>
+          <select id="hotel-room" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+            <option value="Collon Room (Size S / 1-7 kg)">Collon Room (1-7 กก.) - ค้างคืน 250฿ / ไปกลับ 150฿</option>
+            <option value="Biscuit Room (Size M / 7-20 kg)">Biscuit Room (7-20 กก.) - ค้างคืน 350฿ / ไปกลับ 200฿</option>
+            <option value="Brownie Room (Size L / >20 kg)">Brownie Room (>20 กก.) - ค้างคืน 550฿ / ไปกลับ 300฿</option>
+            <option value="Marshmellow Room (Size XL VIP)">Marshmellow VIP Room - ค้างคืน 850฿ / ไปกลับ 500฿</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Section 3: Date & Time -->
+      <div class="space-y-3">
+        <h2 class="text-sm font-bold text-wood flex items-center gap-1.5 border-b border-stone-100 pb-2">
+          <span>📅</span> วันและเวลาที่สะดวก
+        </h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-stone-600 mb-1">วันที่รับบริการ *</label>
+            <input type="date" id="booking-date" required class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-stone-600 mb-1">เวลา (09:00-19:00) *</label>
+            <input type="time" id="booking-time" required min="09:00" max="19:00" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-stone-600 mb-1">หมายเหตุเพิ่มเติม</label>
+          <textarea id="booking-note" rows="2" placeholder="เช่น สัตว์เลี้ยงดุเล็กน้อย, แพ้แชมพูบางชนิด" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel"></textarea>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="w-full py-3.5 bg-wood hover:bg-stone-800 text-white font-bold rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+        <span>ยืนยันการจองคิวบริการ</span>
+      </button>
+    </form>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+      <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-xl text-center space-y-4">
+        <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
+        <h3 class="text-lg font-bold text-stone-900">บันทึกข้อมูลการจองสำเร็จ!</h3>
+        <p class="text-xs text-stone-500" id="summary-text"></p>
+        <button onclick="closeModal()" class="w-full py-2.5 bg-caramel hover:bg-wood text-white font-semibold rounded-lg text-sm">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let activeTab = 'grooming';
+
+    const catOptions = [
+      { label: "ลูกแมว (~1 กก.): อาบน้ำ (250-300฿)", val: "cat-kitten-bath" },
+      { label: "ลูกแมว (~1 กก.): ปัตตาเลี่ยน (450฿)", val: "cat-kitten-clipper" },
+      { label: "ลูกแมว (~1 กก.): กรรไกร (500฿)", val: "cat-kitten-scissor" },
+      { label: "แมวไทย/สก็อตติช ขนสั้น (2-5 กก.): อาบน้ำ (300-350฿)", val: "cat-short-bath" },
+      { label: "แมวไทย/สก็อตติช ขนสั้น (2-5 กก.): ตัดขน (450฿)", val: "cat-short-cut" },
+      { label: "เปอร์เซีย/เบงกอล ขนยาว (2-5 กก.): อาบน้ำ (350-400฿)", val: "cat-long-bath" },
+      { label: "เปอร์เซีย/เบงกอล ขนยาว (2-5 กก.): ปัตตาเลี่ยน (500฿)", val: "cat-long-clipper" },
+      { label: "เปอร์เซีย/เบงกอล ขนยาว (2-5 กก.): กรรไกร (550฿)", val: "cat-long-scissor" },
+      { label: "เมนคูน/ขนยาว (>5 กก.): อาบน้ำ (400-500฿)", val: "cat-xl-bath" },
+      { label: "เมนคูน/ขนยาว (>5 กก.): ตัดขน (600-650฿)", val: "cat-xl-cut" }
+    ];
+
+    const dogOptions = [
+      { label: "Size SS (<1 กก. ลูกสุนัข): อาบน้ำ (250฿) / ตัดขน (350฿)", val: "dog-ss" },
+      { label: "Size S (1-5 กก.): อาบน้ำ (250-300฿) / ปัตตาเลี่ยน (400-450฿)", val: "dog-s" },
+      { label: "Size M (5-10 กก.): อาบน้ำ (300-400฿) / ตัดขน (450-550฿)", val: "dog-m" },
+      { label: "Size L (10-15 กก.): อาบน้ำ (400-500฿) / ตัดขน (550-650฿)", val: "dog-l" },
+      { label: "Size XL (15-20 กก.): อาบน้ำ (750-900฿) / ตัดแต่ง (1,000-1,200฿)", val: "dog-xl" },
+      { label: "Size XXL (20-40 กก.): อาบน้ำ (850-1,000฿) / ตัดแต่ง (1,200-1,500฿)", val: "dog-xxl" },
+      { label: "Size XXL* (>40 กก.): อาบน้ำ (1,000฿++) / ตัดแต่ง (1,500-2,000฿)", val: "dog-xxl-plus" }
+    ];
+
+    function switchCategory(cat) {
+      activeTab = cat;
+      const tabGroom = document.getElementById('tab-grooming');
+      const tabHotel = document.getElementById('tab-hotel');
+      const secGroom = document.getElementById('section-grooming');
+      const secHotel = document.getElementById('section-hotel');
+
+      if (cat === 'grooming') {
+        tabGroom.className = "py-2.5 text-sm font-semibold rounded-lg bg-white text-wood shadow transition-all";
+        tabHotel.className = "py-2.5 text-sm font-semibold rounded-lg text-stone-600 transition-all";
+        secGroom.classList.remove('hidden');
+        secHotel.classList.add('hidden');
+      } else {
+        tabHotel.className = "py-2.5 text-sm font-semibold rounded-lg bg-white text-wood shadow transition-all";
+        tabGroom.className = "py-2.5 text-sm font-semibold rounded-lg text-stone-600 transition-all";
+        secHotel.classList.remove('hidden');
+        secGroom.classList.add('hidden');
+      }
+    }
+
+    function updateServiceOptions() {
+      const species = document.getElementById('pet-species').value;
+      const select = document.getElementById('grooming-package');
+      select.innerHTML = '';
+      const list = species === 'cat' ? catOptions : dogOptions;
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.label;
+        opt.textContent = item.label;
+        select.appendChild(opt);
+      });
+    }
+
+    function handleBooking(e) {
+      e.preventDefault();
+      const owner = document.getElementById('owner-name').value;
+      const pet = document.getElementById('pet-name').value;
+      const date = document.getElementById('booking-date').value;
+      const time = document.getElementById('booking-time').value;
+      
+      let serviceDesc = "";
+      if (activeTab === 'grooming') {
+        const pack = document.getElementById('grooming-package').value;
+        const addons = Array.from(document.querySelectorAll('input[name="addon"]:checked')).map(cb => cb.value);
+        serviceDesc = `อาบน้ำ-ตัดขน (${pack})` + (addons.length ? ` + เสริม: ${addons.join(', ')}` : '');
+      } else {
+        const stay = document.querySelector('input[name="stay-type"]:checked').value === 'overnight' ? 'ค้างคืน' : 'ไป-กลับระหว่างวัน';
+        const room = document.getElementById('hotel-room').value;
+        serviceDesc = `โรงแรมสัตว์เลี้ยง: ${room} (${stay})`;
+      }
+
+      const summary = `คุณ ${owner} ได้จองคิวสำหรับน้อง ${pet} | วันที่ ${date} เวลา ${time} น. (${serviceDesc})`;
+      document.getElementById('summary-text').textContent = summary;
+      document.getElementById('success-modal').classList.remove('hidden');
+      document.getElementById('success-modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('success-modal').classList.add('hidden');
+      document.getElementById('success-modal').classList.remove('flex');
+      document.getElementById('booking-form').reset();
+      updateServiceOptions();
+    }
+
+    // Init defaults
+    updateServiceOptions();
+    // Default date to today
+    document.getElementById('booking-date').value = new Date().toISOString().split('T')[0];
+  </script>
+</body>
+</html>
