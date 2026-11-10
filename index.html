@@ -56,7 +56,7 @@
       </button>
     </div>
 
-    <!-- Official Price Poster Section -->
+    <!-- Official Price Poster Section (ดึงไฟล์ตามชื่อ .jpg.jpg) -->
     <div class="bg-white p-3 rounded-2xl shadow-sm border border-stone-200 space-y-2">
       <div class="flex items-center justify-between px-1">
         <span class="text-xs font-bold text-wood flex items-center gap-1">
@@ -65,7 +65,7 @@
         <span class="text-[11px] text-stone-400">แตะที่รูปเพื่อดูภาพขยาย</span>
       </div>
       <div class="rounded-xl overflow-hidden border border-stone-100 bg-stone-50 cursor-pointer" onclick="openImageModal()">
-        <img id="price-poster-img" src="price-grooming.jpg" alt="อัตราค่าบริการ Pet's Kingdom 2" class="w-full h-auto object-cover transition-transform hover:scale-105 duration-300">
+        <img id="price-poster-img" src="price-grooming.jpg.jpg" alt="อัตราค่าบริการ Pet's Kingdom 2" class="w-full h-auto object-cover transition-transform hover:scale-105 duration-300">
       </div>
     </div>
 
@@ -278,14 +278,14 @@
         tabHotel.className = "py-2.5 text-sm font-semibold rounded-lg text-stone-600 transition-all";
         secGroom.classList.remove('hidden');
         secHotel.classList.add('hidden');
-        posterImg.src = "price-grooming.jpg";
+        posterImg.src = "price-grooming.jpg.jpg";
         posterTitle.textContent = "ตารางราคาบริการอาบน้ำ - ตัดขน";
       } else {
         tabHotel.className = "py-2.5 text-sm font-semibold rounded-lg bg-white text-wood shadow transition-all";
         tabGroom.className = "py-2.5 text-sm font-semibold rounded-lg text-stone-600 transition-all";
         secHotel.classList.remove('hidden');
         secGroom.classList.add('hidden');
-        posterImg.src = "price-hotel.jpg";
+        posterImg.src = "price-hotel.jpg.jpg";
         posterTitle.textContent = "ตารางราคาบริการโรงแรม & รับฝาก";
       }
     }
