@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pet's Kingdom 2 - นัดหมายบริการ</title>
-  <!-- Tailwind CSS & Lucide Icons CDN -->
+  <!-- Tailwind CSS & LINE LIFF SDK -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -24,7 +24,6 @@
   </script>
   <style>
     body { background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    .vintage-border { border: 2px dashed #C27D48; }
   </style>
 </head>
 <body class="text-stone-800 pb-20">
@@ -134,7 +133,7 @@
           <span>🏨</span> เลือกประเภทห้องพัก
         </h2>
         <div class="p-2.5 bg-stone-50 rounded-lg text-xs text-stone-600 space-y-1">
-          <p>• พักได้ไม่เกิน 3 ตัว/ห้อง (เตรียมอาหารมาเอง)</p>
+          <p>• พักได้ไม่เกิน 3 ตัว/ห้อง (เจ้าของเตรียมอาหารมาเอง)</p>
           <p>• รับ-ส่งเวลา 09:00 - 19:00 น. (นอกเวลาเพิ่ม 100฿)</p>
         </div>
 
@@ -178,12 +177,12 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-stone-600 mb-1">หมายเหตุเพิ่มเติม</label>
-          <textarea id="booking-note" rows="2" placeholder="เช่น สัตว์เลี้ยงดุเล็กน้อย, แพ้แชมพูบางชนิด" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel"></textarea>
+          <textarea id="booking-note" rows="2" placeholder="เช่น น้องดุเล็กน้อย, แพ้แชมพูบางชนิด" class="w-full text-sm px-3 py-2 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-caramel"></textarea>
         </div>
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" class="w-full py-3.5 bg-wood hover:bg-stone-800 text-white font-bold rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+      <button type="submit" id="btn-submit" class="w-full py-3.5 bg-wood hover:bg-stone-800 text-white font-bold rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
         <span>ยืนยันการจองคิวบริการ</span>
       </button>
     </form>
@@ -193,9 +192,9 @@
       <div class="bg-white max-w-sm w-full p-6 rounded-2xl shadow-xl text-center space-y-4">
         <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
         <h3 class="text-lg font-bold text-stone-900">บันทึกข้อมูลการจองสำเร็จ!</h3>
-        <p class="text-xs text-stone-500" id="summary-text"></p>
-        <button onclick="closeModal()" class="w-full py-2.5 bg-caramel hover:bg-wood text-white font-semibold rounded-lg text-sm">
-          ปิดหน้าต่าง
+        <p class="text-xs text-stone-500 whitespace-pre-line text-left bg-stone-50 p-3 rounded-lg border border-stone-200" id="summary-text"></p>
+        <button onclick="closeLiffApp()" class="w-full py-2.5 bg-caramel hover:bg-wood text-white font-semibold rounded-lg text-sm">
+          เสร็จสิ้น (ปิดหน้าต่าง)
         </button>
       </div>
     </div>
@@ -203,7 +202,24 @@
   </main>
 
   <script>
+    const MY_LIFF_ID = "2012519560-OLiV2y3Z";
     let activeTab = 'grooming';
+
+    // Initialize LINE LIFF
+    async function initializeLiff() {
+      try {
+        await liff.init({ liffId: MY_LIFF_ID });
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          if (profile.displayName) {
+            document.getElementById('owner-name').value = profile.displayName;
+          }
+        }
+      } catch (err) {
+        console.log("LIFF Init Note:", err);
+      }
+    }
+    initializeLiff();
 
     const catOptions = [
       { label: "ลูกแมว (~1 กก.): อาบน้ำ (250-300฿)", val: "cat-kitten-bath" },
@@ -261,40 +277,68 @@
       });
     }
 
-    function handleBooking(e) {
+    async function handleBooking(e) {
       e.preventDefault();
       const owner = document.getElementById('owner-name').value;
+      const phone = document.getElementById('owner-phone').value;
       const pet = document.getElementById('pet-name').value;
       const date = document.getElementById('booking-date').value;
       const time = document.getElementById('booking-time').value;
+      const note = document.getElementById('booking-note').value || "-";
       
-      let serviceDesc = "";
+      let serviceTitle = "";
+      let serviceDetail = "";
+
       if (activeTab === 'grooming') {
+        serviceTitle = "✂️ อาบน้ำ - ตัดขน (ฟรีโอโซน)";
         const pack = document.getElementById('grooming-package').value;
         const addons = Array.from(document.querySelectorAll('input[name="addon"]:checked')).map(cb => cb.value);
-        serviceDesc = `อาบน้ำ-ตัดขน (${pack})` + (addons.length ? ` + เสริม: ${addons.join(', ')}` : '');
+        serviceDetail = `บริการ: ${pack}\nบริการเสริม: ${addons.length ? addons.join(', ') : 'ไม่มี'}`;
       } else {
+        serviceTitle = "🏨 โรงแรม & รับฝาก";
         const stay = document.querySelector('input[name="stay-type"]:checked').value === 'overnight' ? 'ค้างคืน' : 'ไป-กลับระหว่างวัน';
         const room = document.getElementById('hotel-room').value;
-        serviceDesc = `โรงแรมสัตว์เลี้ยง: ${room} (${stay})`;
+        serviceDetail = `ห้องพัก: ${room}\nประเภท: ${stay}`;
       }
 
-      const summary = `คุณ ${owner} ได้จองคิวสำหรับน้อง ${pet} | วันที่ ${date} เวลา ${time} น. (${serviceDesc})`;
-      document.getElementById('summary-text').textContent = summary;
+      const bookingMessage = `🐾 [แจ้งจองคิว Pet's Kingdom 2]\n\n` +
+        `• ชื่อเจ้าของ: ${owner}\n` +
+        `• เบอร์ติดต่อ: ${phone}\n` +
+        `• ชื่อสัตว์เลี้ยง: ${pet}\n` +
+        `• หมวดหมู่: ${serviceTitle}\n` +
+        `${serviceDetail}\n` +
+        `• วันที่นัดหมาย: ${date}\n` +
+        `• เวลา: ${time} น.\n` +
+        `• หมายเหตุ: ${note}\n\n` +
+        `รอทางร้านตรวจสอบและตอบกลับยืนยันคิวครับ ✨`;
+
+      // If opened in LINE, send message to chat
+      if (liff.isInClient()) {
+        try {
+          await liff.sendMessages([{ type: 'text', text: bookingMessage }]);
+        } catch (error) {
+          console.error("Message send error:", error);
+        }
+      }
+
+      document.getElementById('summary-text').textContent = bookingMessage;
       document.getElementById('success-modal').classList.remove('hidden');
       document.getElementById('success-modal').classList.add('flex');
     }
 
-    function closeModal() {
-      document.getElementById('success-modal').classList.add('hidden');
-      document.getElementById('success-modal').classList.remove('flex');
-      document.getElementById('booking-form').reset();
-      updateServiceOptions();
+    function closeLiffApp() {
+      if (liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        document.getElementById('success-modal').classList.add('hidden');
+        document.getElementById('success-modal').classList.remove('flex');
+        document.getElementById('booking-form').reset();
+        updateServiceOptions();
+      }
     }
 
     // Init defaults
     updateServiceOptions();
-    // Default date to today
     document.getElementById('booking-date').value = new Date().toISOString().split('T')[0];
   </script>
 </body>
